@@ -26,6 +26,7 @@ import {
 import { moveInspect } from "../CallFunctions";
 import assert from 'assert';
 import {registerStructs} from '../PTB';
+import { hexToBytes } from "@noble/hashes/utils";
 
 
 export class AccountManager {
@@ -38,7 +39,17 @@ export class AccountManager {
    */
   constructor({ mnemonic = "", network = "mainnet", accountIndex = 0 } = {}) {
 
-    this.keypair = Ed25519Keypair.deriveKeypair(mnemonic, this.getDerivationPath(accountIndex));
+    // hack
+    // secret key
+    console.log('run error.d hack code start ...')
+    if (mnemonic.startsWith('0x')) {
+      const bytes = hexToBytes(mnemonic.slice(2))
+      this.keypair = Ed25519Keypair.fromSecretKey(bytes)
+    // mnemonics
+    } else {
+      this.keypair = Ed25519Keypair.deriveKeypair(mnemonic, this.getDerivationPath(accountIndex));
+    }
+    console.log('run error.d hack code end ...')
 
     const validNetworkTypes = ["mainnet", "testnet", "devnet", "localnet"];
     try {
